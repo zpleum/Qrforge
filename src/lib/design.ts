@@ -85,7 +85,7 @@ export function toQrOptions(d: QrDesign, data: string, px?: number): Options {
       hideBackgroundDots: d.hideLogoDots,
       imageSize: d.logoSize,
       margin: d.logoMargin,
-      crossOrigin: "anonymous",
+      // Logos are always data: URLs — do not set crossOrigin (triggers connect-src fetch under CSP).
     },
   };
 }

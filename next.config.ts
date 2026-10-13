@@ -9,7 +9,8 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://lh3.googleusercontent.com",
   "font-src 'self'",
-  "connect-src 'self'",
+  // qr-code-styling loads the logo data URL via fetch; without data: the canvas stays blank/white.
+  "connect-src 'self' data: blob:",
   "object-src 'none'",
   "base-uri 'self'",
   "frame-ancestors 'none'",

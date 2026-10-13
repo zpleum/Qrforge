@@ -14,7 +14,7 @@ export default async function Account() {
       <h2 className="mt-10 text-xl font-semibold">ลบบัญชีและข้อมูลทั้งหมด</h2>
       <p className="mt-2 opacity-80">จะลบ QR code ทุกอันและข้อมูลการสแกนทั้งหมดอย่างถาวร กู้คืนไม่ได้ และ QR ที่พิมพ์ไปแล้วจะใช้งานไม่ได้อีก</p>
       <div className="mt-4">
-        <DeleteForm action={deleteAccount} label="ลบบัญชีของฉัน" message="ลบบัญชีและข้อมูลทั้งหมดอย่างถาวร? QR ที่พิมพ์ไปแล้วจะใช้ไม่ได้อีก" />
+        <DeleteForm action={deleteAccount} redirectTo="/" label="ลบบัญชีของฉัน" message="ลบบัญชีและข้อมูลทั้งหมดอย่างถาวร? QR ที่พิมพ์ไปแล้วจะใช้ไม่ได้อีก" />
       </div>
     </div>
   );

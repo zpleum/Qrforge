@@ -59,7 +59,7 @@ export default async function QrDetail({ params, searchParams }: { params: Promi
           <Link href={`/dashboard/${qr.id}/edit`} className={btnGhost}>แก้ไข</Link>
           <a href={`/dashboard/${qr.id}/export`} className={btnGhost}>ส่งออก CSV</a>
           <form action={toggleQr.bind(null, qr.id)}><button className={btnGhost}>{qr.active ? "หยุดชั่วคราว" : "เปิดใช้งานอีกครั้ง"}</button></form>
-          <DeleteForm action={deleteQr.bind(null, qr.id)} message="ลบ QR code นี้และข้อมูลการสแกนทั้งหมด? QR ที่พิมพ์ไปแล้วจะใช้ไม่ได้อีก" />
+          <DeleteForm action={deleteQr.bind(null, qr.id)} redirectTo="/dashboard" message="ลบ QR code นี้และข้อมูลการสแกนทั้งหมด? QR ที่พิมพ์ไปแล้วจะใช้ไม่ได้อีก" />
         </div>
       </div>
 

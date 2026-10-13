@@ -2,7 +2,6 @@
 
 import { and, count, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 import { auth, signOut } from "@/auth";
 import { db } from "@/db";
@@ -83,7 +82,7 @@ export async function deleteQr(id: string): Promise<void> {
   if (!z.uuid().safeParse(id).success) return;
   await db.delete(qrCodes).where(and(eq(qrCodes.id, id), eq(qrCodes.userId, userId))); // scans cascade
   revalidatePath("/dashboard");
-  redirect("/dashboard");
+  revalidatePath(`/dashboard/${id}`);
 }
 
 /** PDPA / GDPR right to erasure: removes the user, every QR code and every scan (all cascade). */

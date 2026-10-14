@@ -5,7 +5,6 @@ import { db } from "@/db";
 import { scans } from "@/db/schema";
 import { getOwnedQr } from "@/lib/queries";
 
-// Neutralise spreadsheet formula injection (=, +, -, @) in user-influenced fields such as referrer.
 const cell = (v: unknown) => {
   let s = v == null ? "" : v instanceof Date ? v.toISOString() : String(v);
   if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
@@ -21,7 +20,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   if (!qr) return new Response("Not found", { status: 404 });
 
   const rows = await db.select().from(scans).where(eq(scans.qrId, qr.id)).orderBy(desc(scans.ts)).limit(50_000);
-  const cols = ["ts", "country", "region", "city", "device", "browser", "os", "referrer", "language", "isBot"] as const;
+  const cols = [
+    "ts", "country", "region", "city", "device", "browser", "os", "referrer", "language",
+    "isBot", "utmSource", "utmMedium", "utmCampaign",
+  ] as const;
   const csv = [cols.join(","), ...rows.map((r) => cols.map((c) => cell(r[c])).join(","))].join("\n");
 
   return new Response(csv, {

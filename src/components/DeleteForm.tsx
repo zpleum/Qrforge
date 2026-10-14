@@ -1,40 +1,52 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
-import { btnGhost } from "@/lib/ui";
+import { useState, useTransition } from "react";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { btnDanger } from "@/lib/ui";
 
 export function DeleteForm({
   action,
   label = "ลบ",
   message,
   redirectTo,
+  title = "ยืนยันการลบ",
 }: {
   action: () => Promise<void>;
   label?: string;
   message: string;
-  /** Navigate away after success so we don't stay on a page that no longer exists. */
   redirectTo?: string;
+  title?: string;
 }) {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
   return (
-    <button
-      type="button"
-      disabled={pending}
-      className={`${btnGhost} text-red-700 hover:border-red-700 disabled:opacity-50`}
-      onClick={() => {
-        if (!confirm(message)) return;
-        startTransition(async () => {
-          await action();
-          if (redirectTo) {
-            router.replace(redirectTo);
-            router.refresh();
-          }
-        });
-      }}
-    >
-      {pending ? "กำลังลบ…" : label}
-    </button>
+    <>
+      <button type="button" disabled={pending} className={btnDanger} onClick={() => setOpen(true)}>
+        {label}
+      </button>
+      <ConfirmDialog
+        open={open}
+        title={title}
+        message={message}
+        confirmLabel={label}
+        danger
+        pending={pending}
+        onCancel={() => setOpen(false)}
+        onConfirm={() => {
+          startTransition(async () => {
+            await action();
+            setOpen(false);
+            if (redirectTo) {
+              router.replace(redirectTo);
+              router.refresh();
+            } else {
+              router.refresh();
+            }
+          });
+        }}
+      />
+    </>
   );
 }

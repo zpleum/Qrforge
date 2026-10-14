@@ -1,25 +1,42 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
+import { isAdminEmail } from "@/lib/admin-emails";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [Google],
-  // Stateless JWT session in an httpOnly, Secure, SameSite=Lax cookie. Short life + sliding refresh.
   session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 7, updateAge: 60 * 60 * 24 },
   pages: { signIn: "/", error: "/" },
   callbacks: {
     async signIn({ account, profile }) {
-      // Only Google accounts with a verified email. Reject everything else.
       if (account?.provider !== "google" || !profile?.email_verified || !profile.sub || !profile.email) return false;
-      const row = { email: profile.email, name: profile.name ?? null, image: profile.picture ?? null };
-      // Stable key = Google "sub" (not Auth.js's random UUID — see jwt below).
-      await db.insert(users).values({ id: profile.sub, ...row }).onConflictDoUpdate({ target: users.id, set: row });
+
+      const [existing] = await db.select({ status: users.status }).from(users).where(eq(users.id, profile.sub)).limit(1);
+      if (existing?.status === "suspended") return false;
+
+      const role = isAdminEmail(profile.email) ? "admin" : "user";
+      const row = {
+        email: profile.email,
+        name: profile.name ?? null,
+        image: profile.picture ?? null,
+        lastLoginAt: new Date(),
+      };
+      await db
+        .insert(users)
+        .values({ id: profile.sub, ...row, role, status: "active" })
+        .onConflictDoUpdate({
+          target: users.id,
+          set: {
+            ...row,
+            // Promote from ADMIN_EMAILS on each login; never auto-demote.
+            ...(role === "admin" ? { role: "admin" as const } : {}),
+          },
+        });
       return true;
     },
     async jwt({ token, account, profile }) {
-      // Auth.js sets token.sub to a random UUID so the user is "independent of the provider".
-      // We need the same id in the session and in `users.id`, so overwrite with Google's sub.
       if (account?.provider === "google" && profile && "sub" in profile && profile.sub) {
         token.sub = String(profile.sub);
       }

@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
   if (!qr) return page("ไม่พบ QR code นี้", 404);
   if (!qr.active) return page("เจ้าของหยุดใช้งาน QR code นี้ชั่วคราว", 410, slug);
 
-  after(() => recordScan(qr.id, req.headers));
+  after(() => recordScan(qr.id, req.headers, qr.destination));
 
   // 307 + no-store: never 301, or browsers cache the destination and the scan is never counted again.
   return NextResponse.redirect(qr.destination, {

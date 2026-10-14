@@ -1,19 +1,74 @@
 @import "tailwindcss";
 
 @theme {
-  --color-fog: #e9eef5;
-  --color-ink: #0b1220;
-  --color-signal: #3a5bff;
-  --color-amber: #ffb020;
+  --color-fog: var(--bg);
+  --color-ink: var(--ink);
+  --color-signal: var(--signal);
+  --color-amber: var(--amber);
+  --color-panel: var(--panel);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
   --font-sans: "Bricolage Grotesque Variable", "Noto Sans Thai Variable", ui-sans-serif, system-ui, sans-serif;
 }
 
-html { background: var(--color-fog); }
-body { background: var(--color-fog); color: var(--color-ink); -webkit-font-smoothing: antialiased; line-height: 1.65; }
-h1, h2, h3 { line-height: 1.3; } /* Thai tone marks need more room than Latin */
-:focus-visible { outline: 3px solid var(--color-signal); outline-offset: 2px; }
+:root {
+  --bg: #e9eef5;
+  --ink: #0b1220;
+  --panel: #ffffff;
+  --muted: rgba(11, 18, 32, 0.72);
+  --border: rgba(11, 18, 32, 0.15);
+  --signal: #3a5bff;
+  --amber: #ffb020;
+  --danger: #b42318;
+  --success: #0f7a45;
+}
 
-/* The one orchestrated motion on the site: a single scan sweep over the hero code. */
+html.dark {
+  --bg: #0b1220;
+  --ink: #e8eef8;
+  --panel: #141c2c;
+  --muted: rgba(232, 238, 248, 0.7);
+  --border: rgba(232, 238, 248, 0.14);
+  --signal: #6b8aff;
+  --amber: #ffc14d;
+  --danger: #f97066;
+  --success: #3dd68c;
+}
+
+html {
+  background: var(--bg);
+  color-scheme: light;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+html.dark { color-scheme: dark; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.65;
+}
+h1, h2, h3 { line-height: 1.3; }
+:focus-visible { outline: 3px solid var(--signal); outline-offset: 2px; }
+
 @keyframes sweep { from { top: 4%; opacity: 1; } to { top: 96%; opacity: 0; } }
 .sweep { animation: sweep 1.4s ease-out 0.5s 1 both; }
-@media (prefers-reduced-motion: reduce) { .sweep { display: none; } }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.toast-in { animation: toast-in 0.22s ease-out both; }
+
+@keyframes drop-pulse {
+  from { box-shadow: 0 0 0 0 color-mix(in oklab, var(--signal) 35%, transparent); }
+  to { box-shadow: 0 0 0 8px transparent; }
+}
+.drop-active { animation: drop-pulse 1s ease-out infinite; border-color: var(--signal) !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sweep, .toast-in, .drop-active { animation: none !important; }
+  html { transition: none; }
+}

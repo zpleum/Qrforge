@@ -26,11 +26,16 @@ export const destinationSchema = z
 
 export const slugSchema = z.string().regex(/^[A-Za-z0-9_-]{3,40}$/, "รหัสลิงก์สั้น: 3-40 ตัว ใช้ a-z, 0-9, - หรือ _");
 
+export const tagSchema = z.string().trim().min(1).max(32);
+export const folderSchema = z.string().trim().max(64).nullable();
+
 export const qrInputSchema = z.object({
   name: z.string().trim().min(1, "ตั้งชื่อก่อน").max(80),
   destination: destinationSchema,
   slug: slugSchema,
   design: designSchema,
   active: z.boolean(),
+  tags: z.array(tagSchema).max(8).default([]),
+  folder: folderSchema.default(null),
 });
 export type QrInput = z.infer<typeof qrInputSchema>;

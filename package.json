@@ -6,8 +6,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "db:push": "node --env-file=.env.local ./node_modules/.bin/drizzle-kit push",
-    "db:studio": "node --env-file=.env.local ./node_modules/.bin/drizzle-kit studio"
+    "db:push": "node --env-file=.env ./node_modules/drizzle-kit/bin.cjs push",
+    "db:studio": "node --env-file=.env ./node_modules/drizzle-kit/bin.cjs studio"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",

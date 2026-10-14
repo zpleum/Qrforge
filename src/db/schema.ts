@@ -8,6 +8,10 @@ export const users = pgTable("users", {
   email: text("email").notNull(),
   name: text("name"),
   image: text("image"),
+  status: text("status").notNull().default("active"), // active | suspended
+  role: text("role").notNull().default("user"), // user | admin
+  notes: text("notes"), // admin-only notes
+  lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -20,6 +24,8 @@ export const qrCodes = pgTable(
     slug: text("slug").notNull().unique(), // what the QR actually encodes: /r/<slug>
     destination: text("destination").notNull(), // editable any time
     design: jsonb("design").$type<QrDesign>().notNull(),
+    tags: jsonb("tags").$type<string[]>().notNull().default([]),
+    folder: text("folder"),
     active: boolean("active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -43,6 +49,9 @@ export const scans = pgTable(
     language: text("language"),
     visitorHash: text("visitor_hash"), // salted + daily-rotating, null when DNT/GPC is on
     isBot: boolean("is_bot").notNull().default(false),
+    utmSource: text("utm_source"),
+    utmMedium: text("utm_medium"),
+    utmCampaign: text("utm_campaign"),
   },
   (t) => [index("scans_qr_ts_idx").on(t.qrId, t.ts)],
 );

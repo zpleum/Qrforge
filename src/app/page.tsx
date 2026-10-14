@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth, signIn, signOut } from "@/auth";
 import { Wordmark } from "@/components/Wordmark";
 import { HeroQr } from "@/components/QrViews";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { defaultDesign, type QrDesign } from "@/lib/design";
 import { btnGhost, btnPrimary } from "@/lib/ui";
 
@@ -16,12 +17,13 @@ const demo: QrDesign = {
 export default async function Home() {
   const session = await auth();
   return (
-    <main className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-8">
+    <main className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl flex-col px-6 py-8">
       <header className="flex items-center justify-between">
         <Wordmark />
-        <nav className="flex gap-5 text-sm">
+        <nav className="flex items-center gap-5 text-sm">
           <Link href="/privacy" className="underline-offset-4 hover:underline">ความเป็นส่วนตัว</Link>
           <Link href="/report" className="underline-offset-4 hover:underline">รายงานลิงก์</Link>
+          <ThemeToggle />
         </nav>
       </header>
 
@@ -32,7 +34,7 @@ export default async function Home() {
           </h1>
           <p className="mt-6 max-w-prose text-lg opacity-80">
             ทุก QR code ชี้ไปที่ลิงก์สั้นที่คุณควบคุมเอง เปลี่ยนปลายทางได้ทุกเมื่อ แต่งสีและใส่โลโก้ของคุณได้
-            แล้วดูได้ว่าใครสแกนเมื่อไหร่ ที่ไหน ด้วยอุปกรณ์อะไร
+            แล้วดูได้ว่าใครสแกนเมื่อไหร่ ที่ไหน ด้วยอุปกรณ์อะไร — โดยไม่เก็บ IP ดิบ
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             {session?.user ? (
@@ -50,8 +52,8 @@ export default async function Home() {
           </div>
           <dl className="mt-14 grid max-w-xl gap-6 text-sm sm:grid-cols-3">
             <div><dt className="font-semibold">แก้ไขได้</dt><dd className="mt-1 opacity-75">พิมพ์ผิดหรือย้ายเว็บ ก็ไม่ต้องพิมพ์ QR ใหม่</dd></div>
-            <div><dt className="font-semibold">วัดผลได้</dt><dd className="mt-1 opacity-75">ดูสแกนรายวัน รายชั่วโมง ประเทศ อุปกรณ์ และอื่น ๆ</dd></div>
-            <div><dt className="font-semibold">เป็นส่วนตัว</dt><dd className="mt-1 opacity-75">ไม่เก็บ IP address และเคารพ Do Not Track</dd></div>
+            <div><dt className="font-semibold">วัดผลได้</dt><dd className="mt-1 opacity-75">สแกนรายวัน ชั่วโมง ประเทศ อุปกรณ์ และ UTM</dd></div>
+            <div><dt className="font-semibold">เป็นส่วนตัว</dt><dd className="mt-1 opacity-75">ไม่เก็บ IP และเคารพ Do Not Track</dd></div>
           </dl>
         </div>
         <HeroQr design={demo} data="https://example.com" />

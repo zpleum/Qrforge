@@ -23,7 +23,7 @@ export default async function Report({ searchParams }: { searchParams: Promise<{
         <p role="status" className="mt-8 border-l-4 border-signal pl-3 font-medium">ส่งรายงานแล้ว ขอบคุณที่แจ้ง</p>
       ) : (
         <form action={submitReport} className="mt-8 grid gap-4">
-          {sp.error && <p role="alert" className="text-sm font-medium text-red-700">{errors[sp.error] ?? errors.invalid}</p>}
+          {sp.error && <p role="alert" className="text-sm font-medium text-danger">{errors[sp.error] ?? errors.invalid}</p>}
           <label className="grid gap-1.5 text-sm"><span className="font-medium">รหัสลิงก์สั้น (ส่วนท้ายของ …/r/xxxxxxx)</span>
             <input name="slug" required defaultValue={slug} className={inputCls} placeholder="เช่น k3m9xq2" />
           </label>

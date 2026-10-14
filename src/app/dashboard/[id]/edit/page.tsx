@@ -19,7 +19,15 @@ export default async function EditQr({ params }: { params: Promise<{ id: string 
         mode="edit"
         id={qr.id}
         baseUrl={process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}
-        initial={{ name: qr.name, destination: qr.destination, slug: qr.slug, active: qr.active, design: qr.design }}
+        initial={{
+          name: qr.name,
+          destination: qr.destination,
+          slug: qr.slug,
+          active: qr.active,
+          design: qr.design,
+          tags: qr.tags ?? [],
+          folder: qr.folder,
+        }}
       />
     </>
   );

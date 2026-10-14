@@ -7,12 +7,14 @@ import { btnDanger } from "@/lib/ui";
 export function DeleteForm({
   action,
   label = "ลบ",
+  confirmLabel,
   message,
   redirectTo,
   title = "ยืนยันการลบ",
 }: {
   action: () => Promise<void>;
   label?: string;
+  confirmLabel?: string;
   message: string;
   redirectTo?: string;
   title?: string;
@@ -30,7 +32,7 @@ export function DeleteForm({
         open={open}
         title={title}
         message={message}
-        confirmLabel={label}
+        confirmLabel={confirmLabel ?? label}
         danger
         pending={pending}
         onCancel={() => setOpen(false)}

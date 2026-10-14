@@ -18,8 +18,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-6">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
         <div className="flex items-center gap-6">
-          <Wordmark href="/dashboard" />
-          <span className="text-sm font-medium text-signal">Admin</span>
+          <Wordmark />
+          <span className="text-sm font-medium text-signal">ทีมงาน</span>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/dashboard" className="text-sm underline-offset-4 hover:underline">กลับแดชบอร์ด</Link>

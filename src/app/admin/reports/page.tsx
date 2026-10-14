@@ -1,10 +1,8 @@
-import { desc, eq, sql } from "drizzle-orm";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { db } from "@/db";
-import { qrCodes, reports, users } from "@/db/schema";
 import { resolveReports } from "@/lib/admin-actions";
+import { listOpenReports } from "@/lib/queries";
 import { btnGhost, btnPrimary } from "@/lib/ui";
 
 export const metadata = { title: "รายงาน · Admin" };
@@ -13,22 +11,7 @@ const reasonTh: Record<string, string> = {
 };
 
 export default async function AdminReports() {
-  const rows = await db
-    .select({
-      slug: reports.slug,
-      n: sql<number>`count(*)::int`,
-      reasons: sql<string>`string_agg(distinct ${reports.reason}, ',')`,
-      details: sql<string | null>`(array_agg(${reports.details}) filter (where ${reports.details} is not null))[1]`,
-      destination: qrCodes.destination,
-      active: qrCodes.active,
-      owner: users.email,
-    })
-    .from(reports)
-    .leftJoin(qrCodes, eq(qrCodes.slug, reports.slug))
-    .leftJoin(users, eq(users.id, qrCodes.userId))
-    .where(eq(reports.status, "open"))
-    .groupBy(reports.slug, qrCodes.destination, qrCodes.active, users.email)
-    .orderBy(desc(sql`max(${reports.createdAt})`));
+  const rows = await listOpenReports();
 
   return (
     <>

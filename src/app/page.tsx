@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { auth, signIn, signOut } from "@/auth";
-import { Wordmark } from "@/components/Wordmark";
 import { HeroQr } from "@/components/QrViews";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { SiteHeader } from "@/components/SiteHeader";
 import { defaultDesign, type QrDesign } from "@/lib/design";
 import { btnGhost, btnPrimary } from "@/lib/ui";
 
@@ -18,17 +17,12 @@ export default async function Home() {
   const session = await auth();
   return (
     <main className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl flex-col px-6 py-8">
-      <header className="flex items-center justify-between">
-        <Wordmark />
-        <nav className="flex items-center gap-5 text-sm">
-          <Link href="/privacy" className="underline-offset-4 hover:underline">ความเป็นส่วนตัว</Link>
-          <Link href="/report" className="underline-offset-4 hover:underline">รายงานลิงก์</Link>
-          <ThemeToggle />
-        </nav>
-      </header>
+      <div className="animate-fade-up">
+        <SiteHeader />
+      </div>
 
       <section className="grid flex-1 items-center gap-12 py-16 md:grid-cols-[1.1fr_0.9fr]">
-        <div>
+        <div className="animate-fade-up-delay">
           <h1 className="text-4xl font-semibold tracking-tight md:text-6xl md:leading-[1.2]">
             พิมพ์ครั้งเดียว<br />แก้ได้ตลอดชีพ
           </h1>
@@ -56,7 +50,9 @@ export default async function Home() {
             <div><dt className="font-semibold">เป็นส่วนตัว</dt><dd className="mt-1 opacity-75">ไม่เก็บ IP และเคารพ Do Not Track</dd></div>
           </dl>
         </div>
-        <HeroQr design={demo} data="https://example.com" />
+        <div className="animate-fade-up-delay-2 animate-hero-float">
+          <HeroQr design={demo} data="https://example.com" />
+        </div>
       </section>
     </main>
   );

@@ -7,14 +7,17 @@ import { Select } from "@/components/ui/Select";
 import { useToast } from "@/components/ui/Toast";
 import { contrastRatio, isLighter, type QrDesign } from "@/lib/design";
 import { saveQr } from "@/lib/actions";
-import { DESIGN_PRESETS } from "@/lib/presets";
+import type { PresetItem } from "@/lib/presets";
 import { btnGhost, btnPrimary, inputCls } from "@/lib/ui";
+import { PresetPicker } from "./PresetPicker";
 import { useQrStyling } from "./useQrStyling";
 
 type Props = {
   mode: "create" | "edit";
   id?: string;
   baseUrl: string;
+  userEmail: string;
+  userPresets?: PresetItem[];
   initial: {
     name: string;
     destination: string;
@@ -40,17 +43,17 @@ async function fileToLogo(file: File): Promise<string> {
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="grid gap-1.5 text-sm">
+    <div className="grid gap-1.5 text-sm">
       <span className="font-medium">{label}</span>
       {children}
-    </label>
+    </div>
   );
 }
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <fieldset className="border-t border-border pt-5">
-      <legend className="pr-3 text-base font-semibold">{title}</legend>
-      <div className="mt-3 grid gap-4 sm:grid-cols-2">{children}</div>
+    <fieldset className="rounded-xl border border-border bg-panel/40 p-5">
+      <legend className="px-1 text-base font-semibold">{title}</legend>
+      <div className="mt-1 grid gap-4 sm:grid-cols-2">{children}</div>
     </fieldset>
   );
 }
@@ -58,19 +61,35 @@ function Color({ label, value, onChange }: { label: string; value: string; onCha
   return (
     <Field label={label}>
       <span className="flex items-center gap-2">
-        <input type="color" value={value} onChange={(e) => onChange(e.target.value.toUpperCase())} className="h-9 w-12 cursor-pointer rounded border border-border bg-panel p-0.5" />
-        <code className="text-xs">{value}</code>
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value.toUpperCase())}
+          className="h-10 w-12 cursor-pointer rounded-lg border border-border bg-panel p-0.5"
+        />
+        <code className="rounded-md bg-ink/[0.04] px-2 py-1 text-xs">{value}</code>
       </span>
     </Field>
   );
 }
-function Pick<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: readonly (readonly [T, string])[]; onChange: (v: T) => void }) {
+function Pick<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: T;
+  options: readonly (readonly [T, string])[];
+  onChange: (v: T) => void;
+}) {
   return (
-    <Field label={label}>
-      <select className={inputCls} value={value} onChange={(e) => onChange(e.target.value as T)}>
-        {options.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
-      </select>
-    </Field>
+    <Select
+      label={label}
+      value={value}
+      onChange={onChange}
+      options={options.map(([v, t]) => ({ value: v, label: t }))}
+    />
   );
 }
 const DOTS = [["square", "สี่เหลี่ยม"], ["dots", "วงกลม"], ["rounded", "มน"], ["extra-rounded", "มนมาก"], ["classy", "คลาสสิก"], ["classy-rounded", "คลาสสิกมน"]] as const;
@@ -86,7 +105,7 @@ function Range({ label, value, min, max, step, onChange }: { label: string; valu
   );
 }
 
-export function QrDesigner({ mode, id, baseUrl, initial }: Props) {
+export function QrDesigner({ mode, id, baseUrl, userEmail, userPresets = [], initial }: Props) {
   const router = useRouter();
   const { toast } = useToast();
   const [pending, start] = useTransition();
@@ -122,11 +141,15 @@ export function QrDesigner({ mode, id, baseUrl, initial }: Props) {
     }
   }
 
-  function applyPreset(id: string) {
-    const p = DESIGN_PRESETS.find((x) => x.id === id);
-    if (!p) return;
-    setD((prev) => ({ ...prev, ...p.design, logo: prev.logo, logoSize: prev.logoSize, logoMargin: prev.logoMargin, hideLogoDots: prev.hideLogoDots }));
-    toast(`ใช้พรีเซ็ต «${p.label}»`, "info");
+  function applyPreset(partial: Partial<QrDesign>) {
+    setD((prev) => ({
+      ...prev,
+      ...partial,
+      logo: prev.logo,
+      logoSize: prev.logoSize,
+      logoMargin: prev.logoMargin,
+      hideLogoDots: prev.hideLogoDots,
+    }));
   }
 
   function submit() {
@@ -153,8 +176,8 @@ export function QrDesigner({ mode, id, baseUrl, initial }: Props) {
   }
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
-      <div className="grid gap-8">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-10">
+      <div className="grid gap-5">
         <Section title="ลิงก์">
           <Field label="ชื่อ (เห็นเฉพาะคุณ)">
             <input className={inputCls} value={name} maxLength={80} onChange={(e) => setName(e.target.value)} placeholder="เมนูใหม่ประจำฤดูหนาว" />
@@ -183,11 +206,7 @@ export function QrDesigner({ mode, id, baseUrl, initial }: Props) {
         </Section>
 
         <Section title="พรีเซ็ตสี">
-          <div className="sm:col-span-2 flex flex-wrap gap-2">
-            {DESIGN_PRESETS.map((p) => (
-              <button key={p.id} type="button" className={btnGhost} onClick={() => applyPreset(p.id)}>{p.label}</button>
-            ))}
-          </div>
+          <PresetPicker design={d} userPresets={userPresets} userEmail={userEmail} onApply={applyPreset} />
         </Section>
 
         <Section title="จุด">
@@ -261,28 +280,32 @@ export function QrDesigner({ mode, id, baseUrl, initial }: Props) {
       </div>
 
       <aside className="lg:sticky lg:top-6 lg:self-start">
-        <div ref={host} className="w-full overflow-hidden rounded-md bg-panel [&_canvas]:h-auto [&_canvas]:w-full" />
-        <p className="mt-3 break-all text-xs opacity-70">ข้อมูลใน QR: {shortUrl}</p>
-        {warnings.length > 0 && (
-          <div className="mt-3">
-            <Alert kind="warning">
-              <ul className="grid gap-1">{warnings.map((w) => <li key={w}>{w}</li>)}</ul>
-            </Alert>
+        <div className="rounded-xl border border-border bg-panel p-4 shadow-sm">
+          <div ref={host} className="w-full overflow-hidden rounded-lg bg-panel [&_canvas]:h-auto [&_canvas]:w-full" />
+          <p className="mt-3 break-all text-xs opacity-65">ข้อมูลใน QR: {shortUrl}</p>
+          {warnings.length > 0 && (
+            <div className="mt-3">
+              <Alert kind="warning">
+                <ul className="grid gap-1">{warnings.map((w) => <li key={w}>{w}</li>)}</ul>
+              </Alert>
+            </div>
+          )}
+          {error && <p role="alert" className="mt-3 text-sm font-medium text-danger">{error}</p>}
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button type="button" className={btnPrimary} disabled={pending} onClick={submit}>
+              {pending ? "กำลังบันทึก…" : mode === "create" ? "สร้าง QR code" : "บันทึกการแก้ไข"}
+            </button>
+            {mode === "edit" && (
+              <>
+                <button type="button" className={btnGhost} onClick={() => qr.current?.download({ name: slug, extension: "png" })}>PNG</button>
+                <button type="button" className={btnGhost} onClick={() => qr.current?.download({ name: slug, extension: "svg" })}>SVG</button>
+              </>
+            )}
           </div>
-        )}
-        {error && <p role="alert" className="mt-3 text-sm font-medium text-danger">{error}</p>}
-        <div className="mt-4 flex flex-wrap gap-2">
-          <button type="button" className={btnPrimary} disabled={pending} onClick={submit}>
-            {pending ? "กำลังบันทึก…" : mode === "create" ? "สร้าง QR code" : "บันทึกการแก้ไข"}
-          </button>
-          {mode === "edit" && (
-            <>
-              <button type="button" className={btnGhost} onClick={() => qr.current?.download({ name: slug, extension: "png" })}>PNG</button>
-              <button type="button" className={btnGhost} onClick={() => qr.current?.download({ name: slug, extension: "svg" })}>SVG</button>
-            </>
+          {mode === "create" && (
+            <p className="mt-3 text-xs opacity-65">ดาวน์โหลดได้หลังบันทึก เพื่อให้ไฟล์ตรงกับลิงก์ที่ใช้งานได้จริง</p>
           )}
         </div>
-        {mode === "create" && <p className="mt-3 text-xs opacity-70">ดาวน์โหลดได้หลังบันทึก เพื่อให้ไฟล์ตรงกับลิงก์ที่ใช้งานได้จริง</p>}
       </aside>
     </div>
   );

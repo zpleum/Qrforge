@@ -11,7 +11,8 @@ export const metadata: Metadata = {
   description: "QR code ที่แก้ลิงก์และดีไซน์ได้หลังพิมพ์ พร้อมสถิติการสแกนที่เคารพความเป็นส่วนตัว",
 };
 
-const themeBoot = `(function(){try{var t=localStorage.getItem("qrforge-theme");var d=t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.classList.add("dark");}catch(e){}})();`;
+// Default light — only honor an explicit user choice of dark.
+const themeBoot = `(function(){try{if(localStorage.getItem("qrforge-theme")==="dark")document.documentElement.classList.add("dark");}catch(e){}})();`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -68,7 +68,35 @@ h1, h2, h3 { line-height: 1.3; }
 }
 .drop-active { animation: drop-pulse 1s ease-out infinite; border-color: var(--signal) !important; }
 
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-page { animation: page-in 0.45s ease-out both; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-rise { animation: rise 0.2s ease-out both; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.55s ease-out both; }
+.animate-fade-up-delay { animation: fade-up 0.55s ease-out 0.12s both; }
+.animate-fade-up-delay-2 { animation: fade-up 0.55s ease-out 0.22s both; }
+
+@keyframes hero-float {
+  from { transform: translateY(0); }
+  to { transform: translateY(-6px); }
+}
+.animate-hero-float { animation: hero-float 3.2s ease-in-out infinite alternate; }
+
 @media (prefers-reduced-motion: reduce) {
-  .sweep, .toast-in, .drop-active { animation: none !important; }
+  .sweep, .toast-in, .drop-active,
+  .animate-page, .animate-rise, .animate-fade-up, .animate-fade-up-delay, .animate-fade-up-delay-2,
+  .animate-hero-float { animation: none !important; }
   html { transition: none; }
 }

@@ -4,27 +4,37 @@ import { useState, useTransition } from "react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
 import {
-  deleteUserAsAdmin, setUserRole, suspendUser, unsuspendUser, updateUserNotes,
+  adminSetAllUserQrs,
+  deleteUserAsAdmin,
+  suspendUser,
+  unsuspendUser,
+  updateUserAsAdmin,
+  updateUserNotes,
 } from "@/lib/admin-actions";
 import { btnDanger, btnGhost, btnPrimary, inputCls } from "@/lib/ui";
 
 export function UserAdminControls({
   userId,
   status,
-  role,
+  name: initialName,
   notes,
   isSelf,
+  isStaff,
+  qrCount,
 }: {
   userId: string;
   status: string;
-  role: string;
+  name: string | null;
   notes: string | null;
   isSelf: boolean;
+  isStaff: boolean;
+  qrCount: number;
 }) {
   const router = useRouter();
   const { toast } = useToast();
   const [pending, start] = useTransition();
   const [note, setNote] = useState(notes ?? "");
+  const [displayName, setDisplayName] = useState(initialName ?? "");
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   function run(fn: () => Promise<void>, ok: string) {
@@ -33,11 +43,13 @@ export function UserAdminControls({
         await fn();
         toast(ok, "success");
         router.refresh();
-      } catch {
-        toast("ทำรายการไม่สำเร็จ", "error");
+      } catch (e) {
+        toast(e instanceof Error ? e.message : "ทำรายการไม่สำเร็จ", "error");
       }
     });
   }
+
+  const locked = isSelf || isStaff;
 
   return (
     <div className="mt-8 grid gap-6">
@@ -47,25 +59,65 @@ export function UserAdminControls({
             เปิดบัญชี
           </button>
         ) : (
-          <button type="button" className={btnGhost} disabled={pending || isSelf} onClick={() => run(() => suspendUser(userId), "ระงับบัญชีแล้ว")}>
+          <button
+            type="button"
+            className={btnGhost}
+            disabled={pending || locked}
+            title={locked ? "ระงับบัญชีทีมงานหรือตัวเองไม่ได้" : undefined}
+            onClick={() => run(() => suspendUser(userId), "ระงับบัญชีแล้ว (QR ทั้งหมดถูกหยุดด้วย)")}
+          >
             ระงับบัญชี
           </button>
         )}
         <button
           type="button"
           className={btnGhost}
-          disabled={pending}
-          onClick={() => run(() => setUserRole(userId, role === "admin" ? "user" : "admin"), "อัปเดตบทบาทแล้ว")}
+          disabled={pending || qrCount === 0}
+          onClick={() => run(() => adminSetAllUserQrs(userId, false), "หยุด QR ทั้งหมดแล้ว")}
         >
-          {role === "admin" ? "ลดเป็น user" : "ตั้งเป็น admin"}
+          หยุด QR ทั้งหมด
         </button>
-        <button type="button" className={btnDanger} disabled={pending || isSelf} onClick={() => setConfirmDelete(true)}>
+        <button
+          type="button"
+          className={btnGhost}
+          disabled={pending || qrCount === 0}
+          onClick={() => run(() => adminSetAllUserQrs(userId, true), "เปิด QR ทั้งหมดแล้ว")}
+        >
+          เปิด QR ทั้งหมด
+        </button>
+        <button
+          type="button"
+          className={btnDanger}
+          disabled={pending || locked}
+          title={locked ? "ลบบัญชีทีมงานหรือตัวเองไม่ได้" : undefined}
+          onClick={() => setConfirmDelete(true)}
+        >
           ลบบัญชี
         </button>
       </div>
 
       <label className="grid max-w-xl gap-1.5 text-sm">
-        <span className="font-medium">โน้ตแอดมิน</span>
+        <span className="font-medium">ชื่อที่แสดง</span>
+        <input className={inputCls} value={displayName} maxLength={120} onChange={(e) => setDisplayName(e.target.value)} />
+        <button
+          type="button"
+          className={`${btnGhost} w-fit`}
+          disabled={pending}
+          onClick={() =>
+            start(async () => {
+              const res = await updateUserAsAdmin(userId, { name: displayName });
+              if (!res.ok) return toast(res.error, "error");
+              toast("อัปเดตชื่อแล้ว", "success");
+              router.refresh();
+            })
+          }
+        >
+          บันทึกชื่อ
+        </button>
+      </label>
+
+      <label className="grid max-w-xl gap-1.5 text-sm">
+        <span className="font-medium">โน้ตภายใน (ไม่แสดงต่อผู้ใช้)</span>
         <textarea className={inputCls} rows={3} value={note} onChange={(e) => setNote(e.target.value)} maxLength={2000} />
         <button
           type="button"
@@ -92,8 +144,8 @@ export function UserAdminControls({
               toast("ลบบัญชีแล้ว", "success");
               router.push("/admin/users");
               router.refresh();
-            } catch {
-              toast("ลบไม่สำเร็จ", "error");
+            } catch (e) {
+              toast(e instanceof Error ? e.message : "ลบไม่สำเร็จ", "error");
             } finally {
               setConfirmDelete(false);
             }

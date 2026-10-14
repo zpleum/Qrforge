@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Wordmark } from "@/components/Wordmark";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { SiteHeader } from "@/components/SiteHeader";
 
 export const metadata: Metadata = { title: "ความเป็นส่วนตัว" };
 
@@ -11,10 +10,7 @@ export default function Privacy() {
   const days = Number(process.env.RETENTION_DAYS ?? 365);
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <div className="flex items-center justify-between">
-        <Wordmark />
-        <ThemeToggle />
-      </div>
+      <SiteHeader />
       <h1 className="mt-10 text-3xl font-semibold tracking-tight">นโยบายความเป็นส่วนตัว</h1>
       <p className="mt-2 text-sm opacity-70">
         นี่คือเทมเพลต ก่อนเปิดใช้จริงให้กรอกข้อมูลผู้ควบคุมข้อมูลของคุณ และให้ผู้เชี่ยวชาญด้านกฎหมายตรวจสอบตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล (PDPA) และ GDPR (ถ้ามีผู้ใช้ในสหภาพยุโรป)
@@ -39,10 +35,10 @@ export default function Privacy() {
         บัญชีที่ถูกระงับโดยผู้ดูแลระบบจะเข้าสู่ระบบไม่ได้ เราไม่อ่านข้อมูลอื่นในบัญชี Google ของคุณ
       </p>
 
-      <H>ระบบรายงานและผู้ดูแล</H>
+      <H>ระบบรายงานลิงก์</H>
       <p className="mt-2">
         เมื่อมีการรายงาน เราเก็บเหตุผล รายละเอียด และค่า hash ของผู้รายงาน (ไม่ใช่ IP) เพื่อป้องกันการรายงานซ้ำ ๆ
-        ผู้ดูแลที่ได้รับอนุญาตสามารถดูอีเมล/ชื่อผู้ใช้ สถิติรวม และระงับบัญชีหรือ QR เพื่อความปลอดภัย — โดยไม่มีหน้าดู IP
+        ทีมงานอาจตรวจสอบรายงานและระงับ QR หรือบัญชีเมื่อพบการละเมิด — โดยไม่เก็บหรือแสดง IP ของผู้ใช้
       </p>
       <p className="mt-2">
         เราตรวจ URL ปลายทางกับ Google Web Risk เพื่อป้องกันฟิชชิงและมัลแวร์ ซึ่งหมายความว่า URL ปลายทางจะถูกส่งไปยัง Google

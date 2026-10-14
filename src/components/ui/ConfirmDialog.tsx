@@ -36,7 +36,7 @@ export function ConfirmDialog({
   return (
     <dialog
       ref={ref}
-      className="fixed inset-0 z-50 m-auto w-[min(100%-2rem,24rem)] rounded-lg border border-border bg-panel p-0 text-ink shadow-xl backdrop:bg-ink/40"
+      className="fixed inset-0 z-[400] m-auto w-[min(100%-2rem,24rem)] rounded-xl border border-border bg-panel p-0 text-ink shadow-2xl backdrop:bg-ink/45"
       onClose={onCancel}
       aria-labelledby={titleId}
     >

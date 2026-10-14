@@ -1,4 +1,5 @@
 "use client";
+import { ImagePlus } from "lucide-react";
 import { useState } from "react";
 
 export function Dropzone({
@@ -19,7 +20,7 @@ export function Dropzone({
 
   return (
     <label
-      className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border bg-panel px-4 py-8 text-center text-sm transition-colors ${active ? "drop-active" : "hover:border-ink/40"}`}
+      className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-panel px-4 py-10 text-center text-sm transition-colors ${active ? "drop-active bg-signal/5" : "hover:border-ink/40 hover:bg-ink/[0.02]"}`}
       onDragEnter={(e) => { e.preventDefault(); setActive(true); }}
       onDragOver={(e) => { e.preventDefault(); setActive(true); }}
       onDragLeave={() => setActive(false)}
@@ -29,8 +30,9 @@ export function Dropzone({
         take(e.dataTransfer.files);
       }}
     >
-      <span className="opacity-80">{hint}</span>
-      <span className="text-xs opacity-60">PNG / JPG / WebP · สูงสุด 5 MB</span>
+      <ImagePlus className="h-6 w-6 opacity-45" />
+      <span className="font-medium opacity-90">{hint}</span>
+      <span className="text-xs opacity-55">PNG / JPG / WebP · สูงสุด 5 MB</span>
       <input
         type="file"
         accept={accept}

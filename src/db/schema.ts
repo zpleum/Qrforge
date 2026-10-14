@@ -77,3 +77,22 @@ export const rateLimits = pgTable("rate_limits", {
   count: integer("count").notNull(),
   resetAt: timestamp("reset_at", { withTimezone: true }).notNull(),
 });
+
+/** Color/style presets — no logo payload. Visibility: private | email | public */
+export const designPresets = pgTable(
+  "design_presets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    design: jsonb("design").$type<Partial<QrDesign>>().notNull(),
+    visibility: text("visibility").notNull().default("private"), // private | email | public
+    shareEmail: text("share_email"), // used when visibility = email
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("design_presets_user_idx").on(t.userId),
+    index("design_presets_share_email_idx").on(t.shareEmail),
+    index("design_presets_visibility_idx").on(t.visibility),
+  ],
+);

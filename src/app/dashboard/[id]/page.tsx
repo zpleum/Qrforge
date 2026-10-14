@@ -74,7 +74,7 @@ export default async function QrDetail({
   const fmtDate = (d: Date) => new Intl.DateTimeFormat("th-TH", { dateStyle: "medium", timeStyle: "short", timeZone: TZ }).format(d);
 
   return (
-    <>
+    <div className="animate-page">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <h1 className="text-3xl font-semibold tracking-tight">
@@ -93,7 +93,13 @@ export default async function QrDetail({
           <a href={`/dashboard/${qr.id}/export`} className={btnGhost}>ส่งออก CSV</a>
           <DuplicateButton id={qr.id} />
           <form action={toggleQr.bind(null, qr.id)}><button className={btnGhost}>{qr.active ? "หยุดชั่วคราว" : "เปิดใช้งานอีกครั้ง"}</button></form>
-          <DeleteForm action={deleteQr.bind(null, qr.id)} redirectTo="/dashboard" message="ลบ QR code นี้และข้อมูลการสแกนทั้งหมด? QR ที่พิมพ์ไปแล้วจะใช้ไม่ได้อีก" />
+          <DeleteForm
+            action={deleteQr.bind(null, qr.id)}
+            redirectTo="/dashboard"
+            title="ยืนยันการลบ QR"
+            confirmLabel="ลบ QR นี้"
+            message={`ลบ "${qr.name}" และข้อมูลการสแกนทั้งหมด? QR ที่พิมพ์ไปแล้วจะใช้ไม่ได้อีก`}
+          />
         </div>
       </div>
 
@@ -158,6 +164,6 @@ export default async function QrDetail({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -1,10 +1,40 @@
 import { defaultDesign, type QrDesign } from "./design";
 
-export const DESIGN_PRESETS: { id: string; label: string; design: Partial<QrDesign> }[] = [
-  { id: "classic", label: "คลาสสิก", design: { ...defaultDesign } },
+export type PresetVisibility = "private" | "email" | "public";
+
+export type PresetItem = {
+  id: string;
+  label: string;
+  design: Partial<QrDesign>;
+  builtin?: boolean;
+  visibility?: PresetVisibility;
+  shareEmail?: string | null;
+  owned?: boolean;
+};
+
+/** Snapshot colors/styles only — logos stay on the QR, not in presets. */
+export function colorSnapshot(d: QrDesign): Partial<QrDesign> {
+  return {
+    dotsType: d.dotsType,
+    dotsColor: d.dotsColor,
+    gradient: d.gradient,
+    cornerSquareType: d.cornerSquareType,
+    cornerSquareColor: d.cornerSquareColor,
+    cornerDotType: d.cornerDotType,
+    cornerDotColor: d.cornerDotColor,
+    bgColor: d.bgColor,
+    bgTransparent: d.bgTransparent,
+    ecLevel: d.ecLevel,
+    margin: d.margin,
+  };
+}
+
+export const BUILTIN_PRESETS: PresetItem[] = [
+  { id: "classic", label: "คลาสสิก", builtin: true, design: { ...defaultDesign } },
   {
     id: "ocean",
     label: "ทะเล",
+    builtin: true,
     design: {
       dotsType: "rounded",
       dotsColor: "#0A4D68",
@@ -17,6 +47,7 @@ export const DESIGN_PRESETS: { id: string; label: string; design: Partial<QrDesi
   {
     id: "ember",
     label: "ถ่านไฟ",
+    builtin: true,
     design: {
       dotsType: "classy-rounded",
       dotsColor: "#3D0C11",
@@ -29,6 +60,7 @@ export const DESIGN_PRESETS: { id: string; label: string; design: Partial<QrDesi
   {
     id: "forest",
     label: "ป่า",
+    builtin: true,
     design: {
       dotsType: "extra-rounded",
       dotsColor: "#1B4332",
@@ -41,6 +73,7 @@ export const DESIGN_PRESETS: { id: string; label: string; design: Partial<QrDesi
   {
     id: "mono",
     label: "ขาวดำ",
+    builtin: true,
     design: {
       dotsType: "square",
       dotsColor: "#111111",
@@ -53,3 +86,6 @@ export const DESIGN_PRESETS: { id: string; label: string; design: Partial<QrDesi
     },
   },
 ];
+
+/** @deprecated use BUILTIN_PRESETS */
+export const DESIGN_PRESETS = BUILTIN_PRESETS;

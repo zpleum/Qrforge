@@ -152,6 +152,39 @@ export async function adminOverview() {
   };
 }
 
+/** Compact pulse for staff on /dashboard — open reports + a few risk counts. */
+export async function staffPulse() {
+  const count = sql<number>`count(*)::int`;
+  const [[openReports], [suspended], [paused]] = await Promise.all([
+    db.select({ n: count }).from(reports).where(eq(reports.status, "open")),
+    db.select({ n: count }).from(users).where(eq(users.status, "suspended")),
+    db.select({ n: count }).from(qrCodes).where(eq(qrCodes.active, false)),
+  ]);
+  return { openReports: openReports.n, suspended: suspended.n, pausedQrs: paused.n };
+}
+
+export async function listOpenReports() {
+  return db
+    .select({
+      slug: reports.slug,
+      n: sql<number>`count(*)::int`,
+      reasons: sql<string>`string_agg(distinct ${reports.reason}, ',')`,
+      details: sql<string | null>`(array_agg(${reports.details}) filter (where ${reports.details} is not null))[1]`,
+      destination: qrCodes.destination,
+      active: qrCodes.active,
+      owner: users.email,
+      ownerId: users.id,
+      latest: sql<string>`max(${reports.createdAt})`,
+    })
+    .from(reports)
+    .leftJoin(qrCodes, eq(qrCodes.slug, reports.slug))
+    .leftJoin(users, eq(users.id, qrCodes.userId))
+    .where(eq(reports.status, "open"))
+    .groupBy(reports.slug, qrCodes.destination, qrCodes.active, users.email, users.id)
+    .orderBy(desc(sql`max(${reports.createdAt})`))
+    .limit(20);
+}
+
 export async function adminListUsers(q?: string) {
   const qrCount = sql<number>`(select count(*)::int from qr_codes where qr_codes.user_id = users.id)`;
   const cond = q?.trim()

@@ -4,21 +4,42 @@ import { auth, signOut } from "@/auth";
 import { Wordmark } from "@/components/Wordmark";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { isAdminEmail } from "@/lib/admin";
+import { staffPulse } from "@/lib/queries";
 import { btnGhost } from "@/lib/ui";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/");
+  const staff = isAdminEmail(session.user.email);
+  const pulse = staff ? await staffPulse() : null;
+
   return (
     <div className="mx-auto max-w-6xl px-6 py-6">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
         <div className="flex items-center gap-6">
-          <Wordmark href="/dashboard" />
+          <Wordmark />
           <nav className="flex gap-4 text-sm">
-            <Link href="/dashboard" className="underline-offset-4 hover:underline">QR ของฉัน</Link>
+            <Link href="/dashboard" className="underline-offset-4 hover:underline">
+              QR ของฉัน
+              {pulse && pulse.openReports > 0 && (
+                <span
+                  className="ml-1.5 inline-flex min-w-5 items-center justify-center rounded-md bg-amber/25 px-1.5 text-xs font-semibold tabular-nums"
+                  title={`${pulse.openReports} รายงานรอตรวจ`}
+                >
+                  {pulse.openReports}
+                </span>
+              )}
+            </Link>
             <Link href="/dashboard/account" className="underline-offset-4 hover:underline">บัญชี</Link>
-            {isAdminEmail(session.user.email) && (
-              <Link href="/admin" className="underline-offset-4 hover:underline">Admin</Link>
+            {staff && (
+              <Link href="/admin" className="underline-offset-4 hover:underline">
+                ทีมงาน
+                {pulse && pulse.openReports > 0 && (
+                  <span className="ml-1.5 inline-flex min-w-5 items-center justify-center rounded-md bg-amber/25 px-1.5 text-xs font-semibold tabular-nums">
+                    {pulse.openReports}
+                  </span>
+                )}
+              </Link>
             )}
           </nav>
         </div>

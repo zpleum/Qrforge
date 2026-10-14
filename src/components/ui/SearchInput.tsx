@@ -20,6 +20,7 @@ export function SearchInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         type="search"
+        autoComplete="off"
       />
     </label>
   );

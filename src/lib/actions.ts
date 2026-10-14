@@ -112,6 +112,15 @@ export async function bulkSetActive(ids: string[], active: boolean): Promise<{ o
   return { ok: true };
 }
 
+export async function bulkDeleteQrs(ids: string[]): Promise<{ ok: boolean; error?: string }> {
+  const userId = await requireUser();
+  const clean = ids.filter((id) => z.uuid().safeParse(id).success).slice(0, 50);
+  if (!clean.length) return { ok: false, error: "ไม่ได้เลือก QR" };
+  await db.delete(qrCodes).where(and(eq(qrCodes.userId, userId), inArray(qrCodes.id, clean)));
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
 export async function duplicateQr(id: string): Promise<SaveResult> {
   const userId = await requireUser();
   if (!z.uuid().safeParse(id).success) return { ok: false, error: "ไม่พบ QR code นี้" };

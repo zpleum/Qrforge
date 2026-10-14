@@ -14,14 +14,13 @@ export default async function Account() {
   const [me] = await db.select().from(users).where(eq(users.id, session!.user.id)).limit(1);
 
   return (
-    <div className="max-w-xl">
+    <div className="animate-page max-w-xl">
       <h1 className="text-3xl font-semibold tracking-tight">บัญชี</h1>
       <p className="mt-4">เข้าสู่ระบบด้วย Google: <strong>{session!.user.email}</strong></p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Badge tone={me?.status === "suspended" ? "danger" : "success"}>
           {me?.status === "suspended" ? "ระงับ" : "ใช้งาน"}
         </Badge>
-        <Badge tone={me?.role === "admin" ? "signal" : "neutral"}>{me?.role ?? "user"}</Badge>
       </div>
       {me?.createdAt && (
         <p className="mt-2 text-sm opacity-70">สมัครเมื่อ {new Date(me.createdAt).toLocaleString("th-TH")}</p>

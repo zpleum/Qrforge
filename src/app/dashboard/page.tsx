@@ -1,6 +1,8 @@
 import { auth } from "@/auth";
 import { QrList } from "@/components/QrList";
-import { listQrs } from "@/lib/queries";
+import { StaffAlerts } from "@/components/StaffAlerts";
+import { isAdminEmail } from "@/lib/admin";
+import { listOpenReports, listQrs, staffPulse } from "@/lib/queries";
 
 const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
@@ -9,8 +11,15 @@ export const metadata = { title: "QR ของฉัน" };
 export default async function Dashboard() {
   const session = await auth();
   const qrs = await listQrs(session!.user.id);
+  const staff = isAdminEmail(session!.user.email);
+
+  const [pulse, openReports] = staff
+    ? await Promise.all([staffPulse(), listOpenReports()])
+    : [null, null];
+
   return (
-    <>
+    <div className="animate-page">
+      {pulse && openReports && <StaffAlerts pulse={pulse} reports={openReports} />}
       <h1 className="mb-8 text-3xl font-semibold tracking-tight">QR code ของคุณ</h1>
       <QrList
         baseUrl={BASE}
@@ -20,6 +29,6 @@ export default async function Dashboard() {
           scans: Number(q.scans),
         }))}
       />
-    </>
+    </div>
   );
 }
